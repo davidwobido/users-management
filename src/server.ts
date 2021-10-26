@@ -3,17 +3,22 @@ import express from 'express';
 const app = express();
 const port = 3000;
 
+const users = ['Alice', 'Anke', 'David', 'Zied'];
+
 app.get('/api/users/:name/', (request, response) => {
-  response.send(request.params.name);
+  const isNameKnown = users.includes(request.params.name);
+  if (isNameKnown) {
+    response.send(request.params.name);
+  } else {
+    response.status(404).send('Can’t find name');
+  }
 });
 
-app.get('/api/users/:name', (_request, response) => {
-  const users = ['Alice', 'Anke', 'David', 'Zied'];
-  response.send(users);
-});
+// app.get('/api/users/:name/', (request, response) => {
+//   response.send(request.params.name);
+// });
 
-app.get('/api/users', (_request, response) => {
-  const users = ['Alice', 'Anke', 'David', 'Zied'];
+app.get('/api/users/', (_request, response) => {
   response.send(users);
 });
 
