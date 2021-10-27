@@ -6,50 +6,61 @@ const port = 3000;
 // For parsing application/json
 app.use(express.json());
 
-const users = ['Alice', 'Anke', 'David', 'Zied'];
+let users = [
+  {
+    name: 'Manuel',
+    username: 'manuel123',
+    password: '123abc',
+  },
+  {
+    name: 'Hendrik',
+    username: 'hendriK',
+    password: 'asdc',
+  },
+  {
+    name: 'Manuel',
+    username: 'manu_strg_f',
+    password: 'ab',
+  },
+  {
+    name: 'david',
+    username: 'dw_182',
+    password: 'pw123!',
+  },
+];
 
 app.post('/api/users', (request, response) => {
-  const isNameKnown = users.includes(request.body.name);
+  const isNameKnown = users.includes(request.body.username);
   if (isNameKnown) {
     response
       .status(409)
-      .send('Conflict:' + request.body.name + 'User already exists');
+      .send('Conflict:' + request.body.username + 'User already exists');
   } else {
     const newUser = request.body;
-    users.push(newUser.name);
-    response.send(request.body.name + ' added.');
+    users.push(newUser);
+    response.send(request.body.username + ' added.');
   }
 });
 
-app.delete('/api/users/:name', (request, response) => {
-  const usersIndex = users.indexOf(request.params.name);
-  if (usersIndex === -1) {
-    response.status(404).send("User doesn't exist. Check another Castle 🏰");
-    return;
-  }
-  users.splice(usersIndex, 1);
-  response.send('Deleted');
-});
-
-// app.delete('/api/users/:name', (request, response) => {
-//   const isNameKnown = users.includes(request.params.name);
-//   if (isNameKnown) {
-//     const usersIndex = users.indexOf(request.params.name);
-//     users.splice(usersIndex);
-//     response.send(
-//       'User ' + request.params.name + ' deleted. Still in the list: ' + users
-//     );
-//   } else {
-//     response.status(404).send('User does not exist');
-//   }
-// });
-
-app.get('/api/users/:name/', (request, response) => {
-  const isNameKnown = users.includes(request.params.name);
-  if (isNameKnown) {
-    response.send(request.params.name);
+app.delete('/api/users/:username', (request, response) => {
+  const user = users.some((user) => user.username === request.params.username);
+  if (user) {
+    const newUsers = users.filter(
+      (user) => user.username !== request.params.username
+    );
+    users = newUsers;
+    response.send(users);
   } else {
-    response.status(404).send('User does not exist');
+    response.send('User not found');
+  }
+});
+
+app.get('/api/users/:username', (request, response) => {
+  const user = users.find((user) => user.username === request.params.username);
+  if (user) {
+    response.send(user);
+  } else {
+    response.status(404).send('User does not exits');
   }
 });
 
