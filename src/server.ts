@@ -29,6 +29,21 @@ let users = [
   },
 ];
 
+app.post('/api/login', (request, response) => {
+  const userLogin = request.body;
+  if (
+    users.find(
+      (user) =>
+        user.username === userLogin.username &&
+        user.password === userLogin.password
+    )
+  ) {
+    response.send('Welcome to the users-management API.');
+  } else {
+    response.status(401).send('Login failed.');
+  }
+});
+
 app.post('/api/users', (request, response) => {
   const isNameKnown = users.includes(request.body.username);
   if (isNameKnown) {
