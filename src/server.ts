@@ -9,7 +9,16 @@ app.use(express.json());
 const users = ['Alice', 'Anke', 'David', 'Zied'];
 
 app.post('/api/users', (request, response) => {
-  response.send(request.body.name);
+  const isNameKnown = users.includes(request.body.name);
+  if (isNameKnown) {
+    response
+      .status(409)
+      .send('Conflict:' + request.body.name + 'User already exists');
+  } else {
+    const newUser = request.body;
+    users.push(newUser.name);
+    response.send(request.body.name + ' added.');
+  }
 });
 
 app.delete('/api/users/:name', (request, response) => {
