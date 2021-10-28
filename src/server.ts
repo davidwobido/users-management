@@ -3,7 +3,7 @@ dotenv.config();
 
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import { connectDatabase } from './utils/database';
+import { connectDatabase, getUserCollection } from './utils/database';
 
 if (!process.env.MONGODB_URI) {
   throw new Error('No MongoDB URL dotenv variable');
@@ -68,15 +68,22 @@ app.post('/api/login', (request, response) => {
 });
 
 app.post('/api/users', (request, response) => {
-  const isNameKnown = users.includes(request.body.username);
-  if (isNameKnown) {
-    response
-      .status(409)
-      .send('Conflict:' + request.body.username + 'User already exists');
+  const newUser = request.body;
+
+  // if (
+  //   typeof newUser.name !== 'string' ||
+  //   typeof newUser.username !== 'string' ||
+  //   typeof newUser.password !== 'string'
+  // ) {
+  //   response.status(400).send('Missing properties');
+  //   return;
+  // }
+  if (users.some((user) => user.username === newUser.username)) {
+    response.status(409).send('User already exists');
   } else {
-    const newUser = request.body;
-    users.push(newUser);
-    response.send(request.body.username + ' added.');
+    const usersCollection = getUserCollection();
+    usersCollection.insertOne(newUser);
+    response.send(newUser.name + ' added');
   }
 });
 
