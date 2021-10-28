@@ -1,6 +1,13 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import { connectDatabase } from './utils/database';
+
+if (!process.env.MONGODB_URI) {
+  throw new Error('No MongoDB URL dotenv variable');
+}
 
 const app = express();
 const port = 3000;
@@ -113,9 +120,7 @@ app.get('/', (_req, res) => {
   res.send('Hello World!');
 });
 
-connectDatabase(
-  'mongodb+srv://Benno182:eHU7EmhZKxW7pMNU@cluster0.p47qo.mongodb.net/Cluster0?retryWrites=true&w=majority'
-).then(() =>
+connectDatabase(process.env.MONGODB_URI).then(() =>
   app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
   })
