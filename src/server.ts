@@ -120,6 +120,7 @@ app.get('/', (_req, res) => {
   res.send('Hello World!');
 });
 
+// Connect to database
 connectDatabase(process.env.MONGODB_URI).then(() =>
   app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`);
