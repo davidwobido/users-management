@@ -67,22 +67,25 @@ app.post('/api/login', (request, response) => {
   }
 });
 
-app.post('/api/users', (request, response) => {
+app.post('/api/users', async (request, response) => {
+  const userCollection = getUserCollection();
   const newUser = request.body;
 
-  // if (
-  //   typeof newUser.name !== 'string' ||
-  //   typeof newUser.username !== 'string' ||
-  //   typeof newUser.password !== 'string'
-  // ) {
-  //   response.status(400).send('Missing properties');
-  //   return;
-  // }
-  if (users.some((user) => user.username === newUser.username)) {
-    response.status(409).send('User already exists');
+  if (
+    typeof newUser.name !== 'string' ||
+    typeof newUser.username !== 'string' ||
+    typeof newUser.password !== 'string'
+  ) {
+    response.status(400).send('Missing properties');
+    return;
+  }
+  const isUserKnown = await userCollection.findOne({
+    username: newUser.username,
+  });
+  if (isUserKnown) {
+    response.status(409).send(newUser + ' already exist.');
   } else {
-    const usersCollection = getUserCollection();
-    usersCollection.insertOne(newUser);
+    userCollection.insertOne(newUser);
     response.send(newUser.name + ' added');
   }
 });
