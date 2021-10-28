@@ -102,7 +102,7 @@ app.get('/api/users/:username', async (request, response) => {
     username: user,
   });
   if (isUserKnown) {
-    response.send(isUserKnown);
+    response.status(200).send(isUserKnown);
   } else {
     response.status(404).send('User does not exist');
   }
@@ -133,19 +133,6 @@ app.delete('/api/users/:username', async (request, response) => {
     response.status(404).send('User does not exist');
   }
 });
-
-// app.delete('/api/users/:username', (request, response) => {
-//   const user = users.some((user) => user.username === request.params.username);
-//   if (user) {
-//     const newUsers = users.filter(
-//       (user) => user.username !== request.params.username
-//     );
-//     users = newUsers;
-//     response.send(users);
-//   } else {
-//     response.send('User not found');
-//   }
-// });
 
 app.get('/api/me', (request, response) => {
   const username = request.cookies.username;
