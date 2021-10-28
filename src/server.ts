@@ -1,5 +1,6 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
+import { connectDatabase } from './utils/database';
 
 const app = express();
 const port = 3000;
@@ -112,6 +113,10 @@ app.get('/', (_req, res) => {
   res.send('Hello World!');
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
-});
+connectDatabase(
+  'mongodb+srv://Benno182:eHU7EmhZKxW7pMNU@cluster0.p47qo.mongodb.net/Cluster0?retryWrites=true&w=majority'
+).then(() =>
+  app.listen(port, () => {
+    console.log(`Example app listening at http://localhost:${port}`);
+  })
+);
