@@ -18,7 +18,7 @@ app.use(express.json());
 // Middleware for parsing cookies
 app.use(cookieParser());
 
-let users = [
+const users = [
   {
     name: 'Manuel',
     username: 'manuel123',
@@ -67,6 +67,8 @@ app.post('/api/login', (request, response) => {
   }
 });
 
+// Post with mongoDB
+
 app.post('/api/users', async (request, response) => {
   const userCollection = getUserCollection();
   const newUser = request.body;
@@ -90,18 +92,60 @@ app.post('/api/users', async (request, response) => {
   }
 });
 
-app.delete('/api/users/:username', (request, response) => {
-  const user = users.some((user) => user.username === request.params.username);
-  if (user) {
-    const newUsers = users.filter(
-      (user) => user.username !== request.params.username
-    );
-    users = newUsers;
-    response.send(users);
+// Read one with mongoDB
+
+app.get('/api/users/:username', async (request, response) => {
+  const userCollection = getUserCollection(); // Datenbank
+  const user = request.params.username; //Eingabe
+
+  const isUserKnown = await userCollection.findOne({
+    username: user,
+  });
+  if (isUserKnown) {
+    response.send(isUserKnown);
   } else {
-    response.send('User not found');
+    response.status(404).send('User does not exist');
   }
 });
+
+// Read all with mongoDB
+
+app.get('/api/users/', async (_request, response) => {
+  const userCollection = getUserCollection();
+  const cursor = userCollection.find();
+  const allUsers = await cursor.toArray();
+  response.send(allUsers);
+});
+
+// Delete with mongoDB
+
+app.delete('/api/users/:username', async (request, response) => {
+  const userCollection = getUserCollection(); // Datenbank
+  const user = request.params.username; //Eingabe
+
+  const isUserKnown = await userCollection.findOne({
+    username: user,
+  });
+  if (isUserKnown) {
+    userCollection.deleteOne({ username: user });
+    response.send(isUserKnown);
+  } else {
+    response.status(404).send('User does not exist');
+  }
+});
+
+// app.delete('/api/users/:username', (request, response) => {
+//   const user = users.some((user) => user.username === request.params.username);
+//   if (user) {
+//     const newUsers = users.filter(
+//       (user) => user.username !== request.params.username
+//     );
+//     users = newUsers;
+//     response.send(users);
+//   } else {
+//     response.send('User not found');
+//   }
+// });
 
 app.get('/api/me', (request, response) => {
   const username = request.cookies.username;
@@ -111,19 +155,6 @@ app.get('/api/me', (request, response) => {
   } else {
     response.status(404).send('User not found');
   }
-});
-
-app.get('/api/users/:username', (request, response) => {
-  const user = users.find((user) => user.username === request.params.username);
-  if (user) {
-    response.send(user);
-  } else {
-    response.status(404).send('User does not exits');
-  }
-});
-
-app.get('/api/users/', (_request, response) => {
-  response.send(users);
 });
 
 app.get('/', (_req, res) => {
